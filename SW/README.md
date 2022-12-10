@@ -1,4 +1,9 @@
-Platform : Vitis  
-Language : C  
+# Convolution HW Accelerator Control Part
+This code is for FPGA PS to run.  
+Main purpose is to control FPGA's PL.   
+The code is writtend by C language on Xilix Vitis SW IDE.
 
-소스코드는 아직 미완성 상태 (10/30일 기준) 
+### Platform : Vitis 22.1v (Xilinx SW IDE) 
+### Language : C  
+
+
