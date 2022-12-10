@@ -1,3 +1,11 @@
+/*******************************************************************************
+Copyright (c) 2022  JiHoon Song, All Rights Reserved
+AUTHOR: JiHoon Song 
+AUTHOR'S EMAIL : jihoon20620@naver.com 
+ASSOCIATED FILENAME : cnn_main.c
+REVISION HISTORY : December 10, 2022 - initial release
+*******************************************************************************/
+
 #include <stdio.h>
 #include "xil_printf.h"
 #include "xil_types.h"
@@ -33,15 +41,15 @@
 #define M_ADDRESS 		0x38
 #define M_VALUE 		0x3C
 #define M_DONE			0x40 // 16
-#define CNN_RESULT_0	0x44 // 17
-#define CNN_RESULT_1	0x48
+#define CNN_RESULT_0		0x44 // 17
+#define CNN_RESULT_1		0x48
 #define CNN_DONE		0x4C
-#define CNN_RESULT_2	0x50
-#define CNN_RESULT_3	0x54
-#define CNN_RESULT_4	0x58
-#define CNN_RESULT_5	0x5C
-#define CNN_RESULT_6	0x60
-#define CNN_RESULT_7	0x64 // 25
+#define CNN_RESULT_2		0x50
+#define CNN_RESULT_3		0x54
+#define CNN_RESULT_4		0x58
+#define CNN_RESULT_5		0x5C
+#define CNN_RESULT_6		0x60
+#define CNN_RESULT_7		0x64 // 25
 #define M0_INIT 		0x68 //26 // 42000000
 #define M1_INIT 		0x6C //		 42000100
 #define M2_INIT 		0x70 //		 42000500
@@ -52,14 +60,14 @@ int main()
 {
 	int inbyte_in;
 	int val;
-	unsigned int kx, ky; 					// Kernel
-	unsigned int ich, och; 					// in / ouput channel
-	unsigned int fmap [ICH][KY][KX]; 		// 8b
-	signed int weight[OCH][ICH][KY][KX]; 	// 8b
-	signed int bias [OCH]; 					// 8b
-	signed int mac_result[OCH]; 			// 24b //22b = 16 bit + 4bit ( log (KY*KX 9) ) + 2 bit ( log (ICH 3) )
-	signed int result[OCH]; // 24b //23b = 22 bit + 1bit (bias)
-	signed int result_for_demo=0; 			// 28b //27b = 23 bit + 4 b ( log (OCH 16) )
+	unsigned int kx, ky; 					
+	unsigned int ich, och; 					
+	unsigned int fmap [ICH][KY][KX]; 		
+	signed int weight[OCH][ICH][KY][KX]; 	
+	signed int bias [OCH]; 					
+	signed int mac_result[OCH]; 			
+	signed int result[OCH]; 
+	signed int result_for_demo=0; 			
 
 	signed int result_0_rtl;
 	signed int result_1_rtl;
@@ -166,9 +174,7 @@ int main()
 				ref_c_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
 				printf("[REF_C] Output took %llu clock cycles.\n", ref_c_run_cycle);
 				printf("[REF_C] Output took %.2f us.\n", ref_c_run_time);
-				printf("[REF_C] result[0] : %d\n", result[0]);
-				printf("[REF_C] result_acc_for_demo : %d\n", result_for_demo);
-				printf("============[RTL_V] CNN Run in PL .=============\n");
+				printf("============[REF_C] DONE .=============\n");
 
 ///////////////////////////////////////////////////////////////////////////// INPUT DATA_Init //////////////////////////////////////////////////////////
 		#define fmap_size (3*3*4)
@@ -366,13 +372,6 @@ int main()
 			printf("[PL] result[5] : %08X | [PS] result[5] : %08X\n", result_5_rtl, Xil_In32((u32) (0x10000000+5*sizeof(int))));
 			printf("[PL] result[6] : %08X | [PS] result[6] : %08X\n", result_6_rtl, Xil_In32((u32) (0x10000000+6*sizeof(int))));
 			printf("[PL] result[7] : %08X | [PS] result[7] : %08X\n\n", result_7_rtl, Xil_In32((u32) (0x10000000+7*sizeof(int))));
-//				printf("PS \n");
-				// 0X10000000 DDR에 저장해놓은 PS 결과값. 캐쉬 리셋때문에 DDR에다가 데이터 저장해놓음.
-				// 밑에서 같이 비교하기 편하라고
-				for  (och = 0 ; och < OCH; och ++){
-					//printf("result[%d] : %08X\n" , och , Xil_In32((u32) (0x10000000+och*sizeof(int))));
-					result[och] = Xil_In32((u32) (0x10000000+och*sizeof(int)));
-				}
 
 //////////////////////////////////////	PS PL MISMATCH CHECK 	///////////////////////////////////////////////////// 
 
@@ -457,19 +456,14 @@ int main()
 		printf("maxpool_result_6 : %x \n" , (int) Xil_In32((u32)(XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR
 				+ MAXPOOL_RESULT_6)));
 		printf("Test Done \n");
-		return 0;
-
-
 		break;
-			case '2': // exit
+				
+		case '2': // exit
 				print ("exit \r\n");
 				return 0;
 		}
 		print ("\r\n");
 	}
-
-	
-    return 0;
 }
 
 static void Callback(void *CallBackRef, u32 IrqMask, int *IgnorePtr){
