@@ -1,34 +1,46 @@
+/*******************************************************************************
+Copyright (c) 2022  JiHoon Song, All Rights Reserved
+AUTHOR: JiHoon Song 
+AUTHOR'S EMAIL : jihoon20620@naver.com 
+ASSOCIATED FILENAME : cnn_core.v
+REVISION HISTORY : December 10, 2022 - initial release
+*******************************************************************************/
 
 `include "timescale.vh"
+`include "defines_cnn_core.vh"
+
 module cnn_kernel (
-    // Clock & Reset
+
     clk             ,
     reset_n         ,
-    i_soft_reset    ,
+
     i_cnn_weight    ,
     i_in_valid      ,
     i_in_fmap       ,
+
     o_ot_valid      ,
-    o_ot_kernel_acc              
+    o_ot_kernel_acc     
+
     );
-`include "defines_cnn_core.vh"
+
 localparam LATENCY = 2;
 
-input                               clk         	;
-input                               reset_n     	;
-input                               i_soft_reset	;
+input                               		clk         	;
+input                              			reset_n     	;
+input                               		i_soft_reset	;
 input     signed [KX*KY*W_BW-1 : 0]  		i_cnn_weight 	;
-input                               i_in_valid  	;
-input     signed [KX*KY*I_F_BW-1 : 0]  	i_in_fmap    	;
-output                              o_ot_valid  	;
+input                               		i_in_valid  	;
+input     [KX*KY*I_F_BW-1 : 0]  			i_in_fmap    	;
+output                              		o_ot_valid  	;
 output    signed [AK_BW-1 : 0]  			o_ot_kernel_acc ;
 
 
 //==============================================================================
 // Data Enable Signals 
 //==============================================================================
-wire    [LATENCY-1 : 0] 	ce;
+
 reg     [LATENCY-1 : 0] 	r_valid;
+
 always @(posedge clk or negedge reset_n) begin
     if(!reset_n) begin
         r_valid   <= {LATENCY{1'b0}};
@@ -40,7 +52,6 @@ always @(posedge clk or negedge reset_n) begin
     end
 end
 
-assign	ce = r_valid;
 
 //==============================================================================
 // mul = fmap * weight
@@ -52,7 +63,7 @@ reg       signed [KY*KX*M_BW-1 : 0]    r_mul;
 genvar mul_idx;
 generate
 	for(mul_idx = 0; mul_idx < KY*KX; mul_idx = mul_idx + 1) begin : gen_mul
-		assign  mul[mul_idx * M_BW +: M_BW]	= $signed(i_in_fmap[mul_idx * I_F_BW +: I_F_BW]) * $signed(i_cnn_weight[mul_idx * W_BW +: W_BW]);
+		assign  mul[mul_idx * M_BW +: M_BW]	= $signed({1'b0,(i_in_fmap[mul_idx * I_F_BW +: I_F_BW])}) * $signed(i_cnn_weight[mul_idx * W_BW +: W_BW]);
 	
 		always @(posedge clk or negedge reset_n) begin
 		    if(!reset_n) begin
@@ -65,6 +76,10 @@ generate
 		end
 	end
 endgenerate
+
+//==============================================================================
+// Mul Accumulate
+//==============================================================================
 
 reg       signed [AK_BW-1 : 0]    acc_kernel 	;
 reg       signed [AK_BW-1 : 0]    r_acc_kernel   ;
@@ -79,8 +94,6 @@ generate
 	end
 	always @(posedge clk or negedge reset_n) begin
 	    if(!reset_n) begin
-	        r_acc_kernel[0 +: AK_BW] <= {AK_BW{1'b0}};
-	    end else if(i_soft_reset) begin
 	        r_acc_kernel[0 +: AK_BW] <= {AK_BW{1'b0}};
 	    end else if(ce[LATENCY-2])begin
 	        r_acc_kernel[0 +: AK_BW] <= acc_kernel[0 +: AK_BW];
