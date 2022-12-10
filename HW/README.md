@@ -1,5 +1,5 @@
 # Convolution HW Accelerator Implementation
-This part is an attempt to implement a convolution HW accelerator system.  
+This project is an attempt to implement a convolution HW accelerator system.  
 The code is writtend by Verilog and synthesized on Xilix FPGA using Vivado.  
 This code is fully optimized and synthesizable. 
 
