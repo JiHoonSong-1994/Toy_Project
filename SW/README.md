@@ -7,6 +7,7 @@ But if the message "[Mismatch] result[0] : %d vs result_0_rtl" is printed , refe
 
 ### Platform : Vitis 22.1v (Xilinx SW IDE) 
 ### Language : C  
+### Version : 1.0
 
 # Conclusion
 This SW coding task was a experience to learn how to use the various drivers provided by xilinx.    
