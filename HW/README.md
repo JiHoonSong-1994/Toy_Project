@@ -1,12 +1,13 @@
 # Convolution HW Accelerator Implementation
 This project is an attempt to implement a convolution HW accelerator system.  
 The code is writtend by Verilog and synthesized on Xilix FPGA using Vivado.  
-This code is fully optimized and synthesizable. 
+This code is synthesizable. 
 
 ### Platform : Vivado 22.1v (Xilinx HW IDE)  
 ### Language : Verilog  
 ### Board : ZYBO Z7-20
-### Implement Resource Usage
+### Implement Resource Usage  
+### Version : 1.0
 ![resource](https://user-images.githubusercontent.com/75150975/206840615-cd1ca29c-a4b5-48c9-bf5c-82cabd783324.png)
 # Architecture
  ┣ 📂cnn_core   
