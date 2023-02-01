@@ -6,8 +6,8 @@ This code is synthesizable.
 ### Platform : Vivado 22.1v (Xilinx HW IDE)  
 ### Language : Verilog  
 ### Board : ZYBO Z7-20
+### Code Version : 1.0
 ### Implement Resource Usage  
-### Version : 1.0
 ![resource](https://user-images.githubusercontent.com/75150975/206840615-cd1ca29c-a4b5-48c9-bf5c-82cabd783324.png)
 # Architecture
  ┣ 📂cnn_core   
@@ -26,6 +26,8 @@ This code is synthesizable.
  ┣ 📜maxPooling.v   
  ┗ 📜README.md   
  
+# Block Diagram
+![block diagram](https://user-images.githubusercontent.com/75150975/215968653-f6d01b8c-dde4-4958-9c34-2e8658b7b125.png)
 # Conclusion  
 I think that pure RTL hardware design is not good choice for neural networks. So I try to design a part of the neural networks.  
 Especially, Convolution is a core computation of neural networks and is a part which takes a lot of times.  
