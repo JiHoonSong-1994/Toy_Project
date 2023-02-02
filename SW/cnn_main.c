@@ -126,13 +126,13 @@ int main()
 					for(ich = 0; ich < ICH; ich ++){
 						for(ky = 0; ky < KY; ky++){
 							for(kx = 0; kx < KX; kx++){
-								weight_rand_val = rand()%256;
+								weight_rand_val = rand()%256-128;
 								weight[och][ich][ky][kx] = weight_rand_val;
 								//printf("weight[%d][%d][%d][%d] : %d\n" ,och,ich,ky,kx,weight[och][ich][ky][kx]);
 							}
 						}
 					}
-					bias_rand_val = rand()%256;
+					bias_rand_val = rand()%256-128;
 					bias[och] = bias_rand_val;
 					mac_result[och] = 0;
 				}
