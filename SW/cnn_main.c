@@ -52,7 +52,7 @@ REVISION HISTORY : December 10, 2022 - initial release
 #define CNN_RESULT_7		0x64 // 25
 #define M0_INIT 		0x68 //26 // 42000000
 #define M1_INIT 		0x6C //		 42000100
-#define M2_INIT 		0x70 //		 42000500
+
 
 static void Callback(void *CallBackRef, u32 IrqMask, int *IgnorePtr);
 
@@ -89,7 +89,7 @@ int main()
 
 	Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M0_INIT), (u32) 0);
 	Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M1_INIT), (u32) 0);
-	Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M2_INIT), (u32) 0);
+
 
 	while (1)
 	{
