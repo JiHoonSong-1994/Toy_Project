@@ -3,7 +3,7 @@ This code is for FPGA PS to run.
 Main purpose is to control FPGA's PL.   
 The code is writtend by C language on Xilix Vitis SW IDE.
 After running the code , if the message "[Match] REF_C vs RTL_V" is printed , reference c code and RTL code have the same result.   
-But if the message "[Mismatch] result[0] : %d vs result_0_rtl" is printed , reference c code and RTL code have different result.    
+But if the message "[Mismatch] result[0] : XX vs result_0_rtl : XX" is printed , reference c code and RTL code have different result.    
 
 ### Platform : Vitis 22.1v (Xilinx SW IDE) 
 ### Language : C  
