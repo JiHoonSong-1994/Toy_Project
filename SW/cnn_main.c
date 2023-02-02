@@ -106,7 +106,7 @@ int main()
 
 		switch (inbyte_in)
 		{
-			case '1': // Show all registers
+			case '1': 
 				srand(tStart);
 
 /////////////////// Random Gen /////////////////////////////
