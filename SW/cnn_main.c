@@ -165,10 +165,7 @@ int main()
 				for  (och = 0 ; och < OCH; och ++){
 				Xil_Out32 ((u32) (0x10000000+och*sizeof(int)), (u32) result[och]);
 				}
-				// to check result between ref_c vs rtl_v
-				for (och = 0 ; och < OCH; och ++){
-					result_for_demo += result[och];
-				}
+
 				XTime_GetTime(&tEnd);
 				ref_c_run_cycle = 2*(tEnd - tStart);
 				ref_c_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
@@ -239,139 +236,142 @@ int main()
 		printf("============================================================\n");
 
 //////////////////////////////////////////////////////////////// DMA TRANSFER///////////////////////////////////////////////////////////////////////
-			xil_printf("============ DMA DATA transfer start ============\n\n");
+		xil_printf("============ DMA DATA transfer start ============\n\n");
 
-			XAxiCdma_Config *CDMA_Config;
-			XAxiCdma *CDMA_Init;
-			//============DDR_BUF => BRAM Data transfer
-			int status;
-			int Interrupt;
-			CDMA_Config = XAxiCdma_LookupConfig(XPAR_AXI_CDMA_0_DEVICE_ID);
-			status = XAxiCdma_CfgInitialize(&CDMA_Init, CDMA_Config , CDMA_Config->BaseAddress );
-			if (status){
-				printf("CDMA_Init Error\n ");
-				return 0;
-			}
-			printf("CDMA_Init Done \n ");
-			int *cdma_src;
-			int *cdma_dsc;
-			cdma_src = (u32*)DDR_BUF;
-			cdma_dsc = XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR;
-			printf("Bram Address : %08x  \n" , cdma_dsc );
-			printf("DDR Address  : %08x  \n" , cdma_src );
+		XAxiCdma_Config *CDMA_Config;
+		XAxiCdma *CDMA_Init;
+		//============DDR_BUF => BRAM Data transfer
+		int status;
+		int Interrupt;
+		CDMA_Config = XAxiCdma_LookupConfig(XPAR_AXI_CDMA_0_DEVICE_ID);
+		status = XAxiCdma_CfgInitialize(&CDMA_Init, CDMA_Config , CDMA_Config->BaseAddress );
+		if (status){
+			printf("CDMA_Init Error\n ");
+			return 0;
+		}
+		printf("CDMA_Init Done \n ");
+		int *cdma_src;
+		int *cdma_dsc;
+		cdma_src = (u32*)DDR_BUF;
+		cdma_dsc = XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR;
+		printf("Bram Address : %08x  \n" , cdma_dsc );
+		printf("DDR Address  : %08x  \n" , cdma_src );
 
-			Xil_DCacheFlushRange((INTPTR)&DDR_BUF,DDR_SIZE);
-			printf("Data Transfer ongoing...\n ");
-			XTime_GetTime(&tStart); // DMA Data trasfer runtime measurement
-			status = XAxiCdma_SimpleTransfer( &CDMA_Init ,
-					(u32) cdma_src,
-					(u32) cdma_dsc,
-					(u32)((fmap_size+weight_size+bias_size)*sizeof(DDR_BUF)),
-					Callback,
-					(void *)&CDMA_Init
-					);
-			XTime_GetTime(&tEnd);
-			if (status == XST_FAILURE){
-				printf("CDMA ERROR \n");
-				printf("CDMA Engine is busy or Simple transfer ongoing \n");
-				return 0;
-			}
-			if (status == XST_INVALID_PARAM){
-				printf("Length out of valid range [1: XAXICDMA_MAX_TRANSFER_LEN]  \n");
-				return 0;
-			}
-			status = XAxiCdma_GetError(&CDMA_Init);
-			if (status != 0x00){
-				XAxiCdma_Reset(&CDMA_Init);
-				printf("Error Code : %#x  \n" , status);
-				return 0;
-			}
-			XAxiCdma_IntrEnable(&CDMA_Init, XAXICDMA_XR_IRQ_ALL_MASK);
-			Interrupt = XAxiCdma_IntrGetEnabled(&CDMA_Init);
-			printf("Interrupt Code : %#x \n" , Interrupt);
-			xil_printf("DMA DATA transfer end (DDR_BUF => BRAM Data transfer Done)\n");
+		Xil_DCacheFlushRange((INTPTR)&DDR_BUF,DDR_SIZE);
+		printf("Data Transfer ongoing...\n ");
 
-			double dma_run_time;
-			XTime dma_cycle;
-			dma_cycle = 2*(tEnd - tStart);
-			dma_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
-			printf("dma took %llu clock cycles.\n", dma_cycle);
-			printf("dma took %.2f us.\n", dma_run_time);
+		XTime_GetTime(&tStart); // DMA Data trasfer runtime measurement
+		status = XAxiCdma_SimpleTransfer( &CDMA_Init ,
+				(u32) cdma_src,
+				(u32) cdma_dsc,
+				(u32)((fmap_size+weight_size+bias_size)*sizeof(DDR_BUF)),
+				Callback,
+				(void *)&CDMA_Init
+				);
+		XTime_GetTime(&tEnd);
+
+		if (status == XST_FAILURE){
+			printf("CDMA ERROR \n");
+			printf("CDMA Engine is busy or Simple transfer ongoing \n");
+			return 0;
+		}
+		if (status == XST_INVALID_PARAM){
+			printf("Length out of valid range [1: XAXICDMA_MAX_TRANSFER_LEN]  \n");
+			return 0;
+		}
+		status = XAxiCdma_GetError(&CDMA_Init);
+		if (status != 0x00){
+			XAxiCdma_Reset(&CDMA_Init);
+			printf("Error Code : %#x  \n" , status);
+			return 0;
+		}
+		XAxiCdma_IntrEnable(&CDMA_Init, XAXICDMA_XR_IRQ_ALL_MASK);
+		Interrupt = XAxiCdma_IntrGetEnabled(&CDMA_Init);
+		printf("Interrupt Code : %#x \n" , Interrupt);
+
+		xil_printf("DMA DATA transfer end (DDR_BUF => BRAM Data transfer Done)\n");
+
+		double dma_run_time;
+		XTime dma_cycle;
+		dma_cycle = 2*(tEnd - tStart);
+		dma_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
+		printf("dma took %llu clock cycles.\n", dma_cycle);
+		printf("dma took %.2f us.\n", dma_run_time);
 
 /////////////////////////////////////////	AXI Master Data Read	////////////////////////////////////
-			signed int fmap_buf;
-			signed int fmap_bram;
-			signed int weight_buf;
-			signed int weight_bram;
-			signed int bias_buf;
-			signed int bias_bram;
+		signed int fmap_buf;
+		signed int fmap_bram;
+		signed int weight_buf;
+		signed int weight_bram;
+		signed int bias_buf;
+		signed int bias_bram;
 
-			int f_read_done ;
-			int w_read_done ;
-			int b_read_done ;
+		int f_read_done ;
+		int w_read_done ;
+		int b_read_done ;
 
-			XTime_GetTime(&tStart);  //AXI Master Read time measurement
+		XTime_GetTime(&tStart);  //AXI Master Read time measurement
 
-			Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_DONE), (u32) 0);
-			Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M0_INIT), (u32) 1);
-			Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + F_ENABLE), (u32) 1);
-			while(1){
-				f_read_done = (int) Xil_In32((u32)(XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+F_READ_DONE));
-				if (f_read_done==1){
-					Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_ENABLE), (u32) 0);
-					Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_DONE), (u32) 1);
-					Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M0_INIT), (u32) 0);
-					break;
-				}
+		Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_DONE), (u32) 0);
+		Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M0_INIT), (u32) 1);
+		Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + F_ENABLE), (u32) 1);
+		while(1){
+			f_read_done = (int) Xil_In32((u32)(XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+F_READ_DONE));
+			if (f_read_done==1){
+				Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_ENABLE), (u32) 0);
+				Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR+ F_DONE), (u32) 1);
+				Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + M0_INIT), (u32) 0);
+				break;
 			}
-			XTime_GetTime(&tEnd);
+		}
+		XTime_GetTime(&tEnd);
 
-			printf("data_read_done : %d\n" ,f_read_done );
-			printf("===========data transfer done====================\n");
+		printf("data_read_done : %d\n" ,f_read_done );
+		printf("===========data transfer done====================\n");
 
-			double bram_transfer_time;
-			XTime bram_transfer_cycle;
-			bram_transfer_cycle = 2*(tEnd - tStart);
-			bram_transfer_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
-			printf("bram_transfer took %llu clock cycles.\n", bram_transfer_cycle);
-			printf("bram_transfer took %.2f us.\n", bram_transfer_time);
-			printf("\n\n");
+		double bram_transfer_time;
+		XTime bram_transfer_cycle;
+		bram_transfer_cycle = 2*(tEnd - tStart);
+		bram_transfer_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
+		printf("bram_transfer took %llu clock cycles.\n", bram_transfer_cycle);
+		printf("bram_transfer took %.2f us.\n", bram_transfer_time);
+		printf("\n\n");
 
 /////////////////////////////////////////	CNN PL Run	////////////////////////////////////
 
-			XTime_GetTime(&tStart);
-				Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CORE_RUN_ADDR), (u32) 1); // CNN run
+		XTime_GetTime(&tStart);
+			Xil_Out32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CORE_RUN_ADDR), (u32) 1); // CNN Core run
 
-				while(1) {
-					val = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_DONE));
-					if(val == 1)
-						break;
-				}
-			XTime_GetTime(&tEnd);
+			while(1) {
+				val = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_DONE));
+				if(val == 1)
+					break;
+			}
+		XTime_GetTime(&tEnd);
 
-			ref_v_run_cycle = 2*(tEnd - tStart);
-			ref_v_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
-			printf("[RTL_V] Output took %llu clock cycles.\n", ref_v_run_cycle);
-			printf("[RTL_V] Output took %.2f us.\n", ref_v_run_time);
+		ref_v_run_cycle = 2*(tEnd - tStart);
+		ref_v_run_time = 1.0 * (tEnd - tStart) / (COUNTS_PER_SECOND/1000000);
+		printf("[RTL_V] Output took %llu clock cycles.\n", ref_v_run_cycle);
+		printf("[RTL_V] Output took %.2f us.\n", ref_v_run_time);
 
-			result_0_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_0));
-			result_1_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_1));
-			result_2_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_2));
-			result_3_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_3));
-			result_4_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_4));
-			result_5_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_5));
-			result_6_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_6));
-			result_7_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_7));
+		result_0_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_0));
+		result_1_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_1));
+		result_2_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_2));
+		result_3_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_3));
+		result_4_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_4));
+		result_5_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_5));
+		result_6_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_6));
+		result_7_rtl = (int) Xil_In32 ((u32) (XPAR_CNN_CORE_TEST_CI3_CO_0_BASEADDR + CNN_RESULT_7));
 
-			printf("PL VS PS \n");
-			printf("[PL] result[0] : %08X | [PS] result[0] : %08X\n", result_0_rtl, Xil_In32((u32) (0x10000000+0*sizeof(int))));
-			printf("[PL] result[1] : %08X | [PS] result[1] : %08X\n", result_1_rtl, Xil_In32((u32) (0x10000000+1*sizeof(int))));
-			printf("[PL] result[2] : %08X | [PS] result[2] : %08X\n", result_2_rtl, Xil_In32((u32) (0x10000000+2*sizeof(int))));
-			printf("[PL] result[3] : %08X | [PS] result[3] : %08X\n", result_3_rtl, Xil_In32((u32) (0x10000000+3*sizeof(int))));
-			printf("[PL] result[4] : %08X | [PS] result[4] : %08X\n", result_4_rtl, Xil_In32((u32) (0x10000000+4*sizeof(int))));
-			printf("[PL] result[5] : %08X | [PS] result[5] : %08X\n", result_5_rtl, Xil_In32((u32) (0x10000000+5*sizeof(int))));
-			printf("[PL] result[6] : %08X | [PS] result[6] : %08X\n", result_6_rtl, Xil_In32((u32) (0x10000000+6*sizeof(int))));
-			printf("[PL] result[7] : %08X | [PS] result[7] : %08X\n\n", result_7_rtl, Xil_In32((u32) (0x10000000+7*sizeof(int))));
+		printf("PL VS PS \n");
+		printf("[PL] result[0] : %08X | [PS] result[0] : %08X\n", result_0_rtl, Xil_In32((u32) (0x10000000+0*sizeof(int))));
+		printf("[PL] result[1] : %08X | [PS] result[1] : %08X\n", result_1_rtl, Xil_In32((u32) (0x10000000+1*sizeof(int))));
+		printf("[PL] result[2] : %08X | [PS] result[2] : %08X\n", result_2_rtl, Xil_In32((u32) (0x10000000+2*sizeof(int))));
+		printf("[PL] result[3] : %08X | [PS] result[3] : %08X\n", result_3_rtl, Xil_In32((u32) (0x10000000+3*sizeof(int))));
+		printf("[PL] result[4] : %08X | [PS] result[4] : %08X\n", result_4_rtl, Xil_In32((u32) (0x10000000+4*sizeof(int))));
+		printf("[PL] result[5] : %08X | [PS] result[5] : %08X\n", result_5_rtl, Xil_In32((u32) (0x10000000+5*sizeof(int))));
+		printf("[PL] result[6] : %08X | [PS] result[6] : %08X\n", result_6_rtl, Xil_In32((u32) (0x10000000+6*sizeof(int))));
+		printf("[PL] result[7] : %08X | [PS] result[7] : %08X\n\n", result_7_rtl, Xil_In32((u32) (0x10000000+7*sizeof(int))));
 
 //////////////////////////////////////	PS PL MISMATCH CHECK 	///////////////////////////////////////////////////// 
 
