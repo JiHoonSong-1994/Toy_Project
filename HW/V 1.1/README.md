@@ -31,6 +31,7 @@ This code is synthesizable.
 # Conclusion  
 This version adds Ethernet communication capabilities to previous versions.  
 I think Ethernet Communication is very powerful about transmiiting Large amounts of data.  
-Actually , CNN need to a lot of data for operation.(for example, GB or TB etc...)
+Actually , CNN need to a lot of data for operation.(for example, GB or TB etc...)  
 So high speed interface communication skills are one of the technologies required in cnn.  
-This project have a purpose that implement FPGA-based 1Gigabit Ethernet which is high speed.   
+This project have a purpose that implement FPGA-based 1Gigabit Ethernet which is high speed.  
+Zynq Processor contains 1Gigabit Ethernet IP. 
