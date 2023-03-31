@@ -5,4 +5,5 @@
 ## v 1.0 - release
   Release Verison
 ## v 1.1
-  Add Ethernet functionality
+  Add new feature : Ethernet Communication / UDP/IP Protocol. 
+  
