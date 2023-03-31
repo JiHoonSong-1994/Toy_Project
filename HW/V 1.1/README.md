@@ -8,7 +8,7 @@ This code is synthesizable.
 ### Board : ZYBO Z7-20
 ### Code Version : 1.0
 ### Implement Resource Usage  
-![resource](https://user-images.githubusercontent.com/75150975/206840615-cd1ca29c-a4b5-48c9-bf5c-82cabd783324.png)
+![Resource Usage](https://user-images.githubusercontent.com/75150975/229065503-f297dc23-037d-47f0-8a6f-870eb8717815.png)
 # Architecture
  ┣ 📂cnn_core   
  ┃ ┣ 📜cnn_acc_ci.v   
@@ -29,9 +29,8 @@ This code is synthesizable.
 # Block Diagram
 ![block diagram](https://user-images.githubusercontent.com/75150975/215968653-f6d01b8c-dde4-4958-9c34-2e8658b7b125.png)
 # Conclusion  
-I think that pure RTL hardware design is not good choice for neural networks. So I try to design a part of the neural networks.  
-Especially, Convolution is a core computation of neural networks and is a part which takes a lot of times.  
-This is a reason why I try to design as hardware. 
-I proceeded with all stages of planning, design, verification by myself.  
-This special experience was a new challenge for me and I could learn a lot.   
-I hope it will be an experience that goes one step further. 
+This version adds Ethernet communication capabilities to previous versions.  
+I think Ethernet Communication is very powerful about transmiiting Large amounts of data.  
+Actually , CNN need to a lot of data for operation.(for example, GB or TB etc...)
+So high speed interface communication skills are one of the technologies required in cnn.  
+This project have a purpose that implement FPGA-based 1Gigabit Ethernet which is high speed.   
