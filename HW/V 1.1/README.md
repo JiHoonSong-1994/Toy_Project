@@ -6,7 +6,7 @@ This code is synthesizable.
 ### Platform : Vivado 22.1v (Xilinx HW IDE)  
 ### Language : Verilog  
 ### Board : ZYBO Z7-20
-### Code Version : 1.0
+### Code Version : 1.1
 ### Implement Resource Usage  
 ![Resource Usage](https://user-images.githubusercontent.com/75150975/229065503-f297dc23-037d-47f0-8a6f-870eb8717815.png)
 # Architecture
